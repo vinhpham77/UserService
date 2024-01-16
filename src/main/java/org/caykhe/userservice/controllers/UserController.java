@@ -38,7 +38,7 @@ public class UserController {
         User user = userService.getUserByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-
+    
     @GetMapping("/{follower}/followings")
     public ResponseEntity<?> getFollowings(@PathVariable String follower, Integer page, Integer size) {
         ResultCount<User> followings = userService.getFollowings(follower, page, size);

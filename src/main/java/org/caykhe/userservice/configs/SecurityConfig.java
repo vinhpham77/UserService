@@ -63,7 +63,7 @@ public class SecurityConfig {
                 }))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/signup", "/auth/signin", "/auth/refresh-token").permitAll()
-                        .requestMatchers("/users/{username}", "/users/{follower}/followings", "/users/{followed}/followers").permitAll()
+                        .requestMatchers("/users/list", "/users/{username}", "/users/{follower}/followings", "/users/{followed}/followers").permitAll()
                         .anyRequest().authenticated())
 
                 .authenticationProvider(authenticationProvider())

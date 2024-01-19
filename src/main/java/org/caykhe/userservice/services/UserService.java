@@ -68,4 +68,10 @@ public class UserService {
 
         return new ResultCount<>(users.toList(), count);
     }
+
+    public List<User> getUsersByUsernames(List<String> usernames) {
+        List<String> distinctUsernames = usernames.stream().distinct().toList();
+        
+        return userRepository.findAllByUsernameIn(distinctUsernames);
+    }
 }

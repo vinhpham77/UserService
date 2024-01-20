@@ -87,4 +87,9 @@ public class FollowService {
             throw new ApiException("User không tồn tại", HttpStatus.NOT_FOUND);
         }
     }
+
+    public List<User> getFollowed() {
+        List<String> usernames = getFollowedByFollower();
+        return userRepository.findAllByUsernameIn(usernames);
+    }
 }

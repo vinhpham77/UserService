@@ -43,7 +43,6 @@ public class AuthController {
         if (cookies == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Chưa cung cấp refresh token");
         }
-
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("refresh_token")) {
                 String refreshToken = cookie.getValue();
@@ -51,10 +50,8 @@ public class AuthController {
                 return ResponseEntity.ok("Đăng xuất thành công!");
             }
         }
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Chưa cung cấp refresh token");
     }
-
     @GetMapping("/refresh-token")
     public ResponseEntity<?> getRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();

@@ -1,6 +1,7 @@
 package org.caykhe.userservice.services;
 
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.caykhe.userservice.dtos.*;
 import org.caykhe.userservice.models.Authentication;
@@ -120,12 +121,10 @@ public class AuthenticationService {
 
         return AuthUser.builder().user(user).authentication(authentication).build();
     }
-
+@Transactional
     public void logout(String refreshToken) {
          var user = getAuthenticationAndUser(refreshToken).user();
-        User managedFollower = entityManager.merge(user);
         authenticationRepository.deleteByUsername(user);
-        System.out.println("oke");
     }
     private User getAuthenticationAndUser1(String refreshToken) {
         String username = jwtService.extractUserName(refreshToken, true);

@@ -1,5 +1,6 @@
 package org.caykhe.userservice.repositories;
 
+import jakarta.validation.constraints.NotNull;
 import org.caykhe.userservice.models.Authentication;
 import org.caykhe.userservice.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,5 +13,6 @@ public interface AuthenticationRepository extends JpaRepository<Authentication, 
     Optional<Authentication> findByUsername(User user);
 
     void deleteByUsername(User user);
+
 
 }

@@ -32,4 +32,9 @@ public class FollowController {
     public ResponseEntity<?> getTotalPost(@PathVariable String followed) {
         return new ResponseEntity<>(followService.countFollowerBy(followed), HttpStatus.OK);
     }
+
+    @GetMapping("/get/followed")
+    public ResponseEntity<?> getFollowed() {
+        return new ResponseEntity<>(followService.getFollowed(), HttpStatus.OK);
+    }
 }

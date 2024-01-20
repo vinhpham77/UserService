@@ -76,4 +76,9 @@ public class AuthController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return ResponseEntity.ok(user);
     }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestParam String refreshToken) {
+        authenticationService.logout(refreshToken);
+        return ResponseEntity.ok("Đăng xuất thành công!");
+    }
 }

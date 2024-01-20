@@ -9,9 +9,9 @@ import org.caykhe.userservice.dtos.SignInRequest;
 import org.caykhe.userservice.dtos.SignUpRequest;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.services.AuthenticationService;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -52,6 +52,7 @@ public class AuthController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Chưa cung cấp refresh token");
     }
+
     @GetMapping("/refresh-token")
     public ResponseEntity<?> getRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
@@ -69,7 +70,7 @@ public class AuthController {
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Chưa cung cấp refresh token");
     }
-    
+
     @GetMapping("/verify")
     public ResponseEntity<?> verifyToken() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

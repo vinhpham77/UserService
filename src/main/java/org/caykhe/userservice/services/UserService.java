@@ -17,8 +17,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -75,7 +73,7 @@ public class UserService {
 
     public List<User> getUsersByUsernames(List<String> usernames) {
         List<String> distinctUsernames = usernames.stream().distinct().toList();
-        
+
         return userRepository.findAllByUsernameIn(distinctUsernames);
     }
 
@@ -92,7 +90,7 @@ public class UserService {
         if (userByEmail.isPresent() && !userByEmail.get().getUsername().equals(username)) {
             throw new ApiException("Email đã được sử dụng", HttpStatus.BAD_REQUEST);
         }
-        
+
         user.setEmail(userDto.getEmail().trim());
         user.setGender(userDto.getGender());
         user.setBirthdate(userDto.getBirthdate());
@@ -107,7 +105,7 @@ public class UserService {
         if (raw == null) {
             return null;
         }
-        
+
         String trimmed = raw.trim();
 
         if (trimmed.isEmpty()) {

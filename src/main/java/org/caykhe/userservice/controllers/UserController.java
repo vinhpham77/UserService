@@ -32,7 +32,7 @@ public class UserController {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
     }
-    
+
     @PostMapping("/list")
     public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<String> usernames) {
         List<User> users = userService.getUsersByUsernames(usernames);
@@ -44,7 +44,7 @@ public class UserController {
         User user = userService.getUserByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-    
+
     @GetMapping("/{follower}/followings")
     public ResponseEntity<?> getFollowings(@PathVariable String follower, Integer page, Integer size) {
         ResultCount<User> followings = userService.getFollowings(follower, page, size);

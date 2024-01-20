@@ -38,4 +38,9 @@ public class FollowController {
     public ResponseEntity<?> getFollowed() {
         return new ResponseEntity<>(followService.getFollowed(), HttpStatus.OK);
     }
+
+    @GetMapping("/stats/{username}")
+    public ResponseEntity<?> getStats(@PathVariable String username) {
+        return new ResponseEntity<>(followService.getStats(username), HttpStatus.OK);
+    }
 }

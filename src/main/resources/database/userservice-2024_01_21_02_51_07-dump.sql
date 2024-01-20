@@ -43,55 +43,6 @@ INSERT INTO `authentications` VALUES (5,'user0001','eyJhbGciOiJIUzI1NiJ9.eyJzdWI
 UNLOCK TABLES;
 
 --
--- Table structure for table `bookmark_details`
---
-
-DROP TABLE IF EXISTS `bookmark_details`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `bookmark_details` (
-  `bookmark_id` int NOT NULL,
-  `target_id` int NOT NULL,
-  `type` bit(1) NOT NULL,
-  PRIMARY KEY (`bookmark_id`,`target_id`,`type`),
-  CONSTRAINT `FK1o7ela9xax4kjr1ogmu1kmaln` FOREIGN KEY (`bookmark_id`) REFERENCES `bookmarks` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `bookmark_details`
---
-
-LOCK TABLES `bookmark_details` WRITE;
-/*!40000 ALTER TABLE `bookmark_details` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bookmark_details` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `bookmarks`
---
-
-DROP TABLE IF EXISTS `bookmarks`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `bookmarks` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `username` varchar(50) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_7nji854vqd1tkbwyclpaypt3b` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `bookmarks`
---
-
-LOCK TABLES `bookmarks` WRITE;
-/*!40000 ALTER TABLE `bookmarks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bookmarks` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `follows`
 --
 
@@ -150,32 +101,6 @@ LOCK TABLES `users` WRITE;
 INSERT INTO `users` VALUES (10,'user0001','$2a$10$EsGrvTTapX4FTLISQ7q9Fe3HMOyN29Lh4SqBSanvhdbHQEKBO5Q2G','user0001@gmail.com',NULL,'Phạm Văn Vinh',NULL,NULL,'ROLE_member',NULL),(11,'vanvinh7','$2a$10$rCJhfLyGDxgVvq7CsNKF4uUrRYLHAiqz4LaAFhAUnDFfhbYBMPzeK','phamvanvinh8a2@gmail.com','2002-12-10','Phạm Văn Vinh','123123123',NULL,'ROLE_member',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `votes`
---
-
-DROP TABLE IF EXISTS `votes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `votes` (
-  `target_id` int NOT NULL,
-  `target_type` bit(1) NOT NULL,
-  `updated_at` datetime(6) NOT NULL,
-  `vote_type` bit(1) NOT NULL,
-  `username` varchar(50) NOT NULL,
-  PRIMARY KEY (`target_id`,`target_type`,`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `votes`
---
-
-LOCK TABLES `votes` WRITE;
-/*!40000 ALTER TABLE `votes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `votes` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -186,4 +111,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-21  2:29:35
+-- Dump completed on 2024-01-21  2:51:07

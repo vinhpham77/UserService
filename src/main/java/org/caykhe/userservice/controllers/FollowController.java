@@ -22,7 +22,6 @@ public class FollowController {
     public ResponseEntity<?> follow(@RequestBody String followed) {
         return new ResponseEntity<>(followService.follow(followed), HttpStatus.OK);
     }
-
     @PostMapping("/unfollow")
     public ResponseEntity<?> unfollow(@RequestBody String followed) {
         followService.unfollow(followed);

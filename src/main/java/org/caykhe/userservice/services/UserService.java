@@ -3,6 +3,7 @@ package org.caykhe.userservice.services;
 import lombok.RequiredArgsConstructor;
 import org.caykhe.userservice.dtos.ApiException;
 import org.caykhe.userservice.dtos.ResultCount;
+import org.caykhe.userservice.dtos.UserDto;
 import org.caykhe.userservice.models.Follow;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.repositories.FollowRepository;
@@ -11,10 +12,13 @@ import org.caykhe.userservice.utils.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -73,5 +77,43 @@ public class UserService {
         List<String> distinctUsernames = usernames.stream().distinct().toList();
         
         return userRepository.findAllByUsernameIn(distinctUsernames);
+    }
+
+    public User update(String username, UserDto userDto) {
+        var requester = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!requester.equals(username)) {
+            throw new ApiException("Bạn không có quyền cập nhật thông tin người dùng khác", HttpStatus.FORBIDDEN);
+        }
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new ApiException("Không tìm thấy người dùng @" + username, HttpStatus.NOT_FOUND));
+        Optional<User> userByEmail = userRepository.findByEmail(userDto.getEmail());
+
+        if (userByEmail.isPresent() && !userByEmail.get().getUsername().equals(username)) {
+            throw new ApiException("Email đã được sử dụng", HttpStatus.BAD_REQUEST);
+        }
+        
+        user.setEmail(userDto.getEmail().trim());
+        user.setGender(userDto.getGender());
+        user.setBirthdate(userDto.getBirthdate());
+        user.setBio(getUserProperty(userDto.getBio()));
+        user.setDisplayName(getUserProperty(userDto.getDisplayName()));
+        user.setAvatarUrl(getUserProperty(userDto.getAvatarUrl()));
+
+        return userRepository.save(user);
+    }
+
+    String getUserProperty(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        
+        String trimmed = raw.trim();
+
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+
+        return trimmed;
     }
 }

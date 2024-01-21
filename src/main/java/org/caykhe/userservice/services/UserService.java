@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.caykhe.userservice.dtos.ApiException;
 import org.caykhe.userservice.dtos.ResultCount;
 import org.caykhe.userservice.dtos.UserDto;
+import org.caykhe.userservice.dtos.UserStats;
+import org.caykhe.userservice.dtos.*;
 import org.caykhe.userservice.models.Follow;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.repositories.FollowRepository;
@@ -15,9 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -26,7 +30,7 @@ import java.util.stream.Stream;
 public class UserService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
-
+    private final PasswordEncoder passwordEncoder;
     public UserDetailsService userDetailsService() {
         return username -> userRepository
                 .findByUsername(username)
@@ -42,7 +46,7 @@ public class UserService {
         return Optional.of(userRepository.findAll());
     }
 
-    public ResultCount<User> getFollowings(String follower, Integer page, Integer size) {
+    public ResultCount<UserStats> getFollowings(String follower, Integer page, Integer size) {
         User followerUser = getUserByUsername(follower);
         Pageable pageable = PaginationUtils.getPageable(page - 1, size, "followed");
         Page<Follow> followersPage = followRepository.findAllByFollower(followerUser, pageable);
@@ -50,7 +54,7 @@ public class UserService {
         return countAndAddStates(followersPage, true);
     }
 
-    public ResultCount<User> getFollowers(String followed, Integer page, Integer size) {
+    public ResultCount<UserStats> getFollowers(String followed, Integer page, Integer size) {
         User followedUser = getUserByUsername(followed);
         Pageable pageable = PaginationUtils.getPageable(page - 1, size, "follower");
         Page<Follow> followedsPage = followRepository.findAllByFollowed(followedUser, pageable);
@@ -58,7 +62,7 @@ public class UserService {
         return countAndAddStates(followedsPage, false);
     }
 
-    private ResultCount<User> countAndAddStates(Page<Follow> followePage, boolean isFollowing) {
+    private ResultCount<UserStats> countAndAddStates(Page<Follow> followePage, boolean isFollowing) {
         long count = followePage.getTotalElements();
         Stream<User> users;
 
@@ -68,7 +72,9 @@ public class UserService {
             users = followePage.stream().map(Follow::getFollower);
         }
 
-        return new ResultCount<>(users.toList(), count);
+        List<UserStats> userStats = users.map(this::addStats).toList();
+
+        return new ResultCount<>(userStats, count);
     }
 
     public List<User> getUsersByUsernames(List<String> usernames) {
@@ -101,6 +107,21 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public UserStats addStats(User user) {
+        int followingCount = followRepository.countByFollower(user);
+        int followerCount = followRepository.countByFollowed(user);
+
+        return UserStats.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .displayName(user.getDisplayName())
+                .role(user.getRole())
+                .followingCount(followingCount)
+                .followerCount(followerCount)
+                .build();
+    }
+
     String getUserProperty(String raw) {
         if (raw == null) {
             return null;
@@ -114,4 +135,49 @@ public class UserService {
 
         return trimmed;
     }
+    public User changePassword(ChangePasswordRequest changePasswordRequest) {
+        String currentPassword = changePasswordRequest.getCurrentPassword();
+        String encodedPassword=passwordEncoder.encode(currentPassword);
+        String username = changePasswordRequest.getUsername();
+        String newPassword = changePasswordRequest.getNewPassword();
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (passwordEncoder.matches(currentPassword, user.getPassword())) {
+                String newEncodedPassword = passwordEncoder.encode(newPassword);
+                user.setPassword(newEncodedPassword);
+                return userRepository.save(user);
+            } else
+                throw new ApiException("Mật khẩu hiện tại không chính xác", HttpStatus.BAD_REQUEST);
+        }
+        throw new ApiException("User không tồn tại", HttpStatus.BAD_REQUEST);
+    }
+
+    public void resetPass(RequestRessetPass requestRessetPass) {
+        System.out.println(requestRessetPass.getOtp());
+        System.out.println(requestRessetPass.getNewPassword());
+        if (Objects.equals(requestRessetPass.getOtp(), "1234")) {
+            Optional<User> userOptional = userRepository.findByUsername(requestRessetPass.getUsername());
+            if (userOptional.isPresent()) {
+                try {
+                    User user = userOptional.get();
+                    String encodedPassword = passwordEncoder.encode(requestRessetPass.getNewPassword());
+                    user.setPassword(encodedPassword);
+                    userRepository.save(user);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+
+            } else
+                throw new ApiException("Không tồn tại user", HttpStatus.NOT_FOUND);
+        } else {
+            throw new ApiException("OTP sai", HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    public Optional<User> getByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
 }

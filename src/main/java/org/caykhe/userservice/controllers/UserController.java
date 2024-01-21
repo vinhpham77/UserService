@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.caykhe.userservice.dtos.ApiException;
 import org.caykhe.userservice.dtos.ResultCount;
 import org.caykhe.userservice.dtos.UserDto;
+import org.caykhe.userservice.dtos.UserStats;
+import org.caykhe.userservice.dtos.*;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -47,13 +49,13 @@ public class UserController {
 
     @GetMapping("/{follower}/followings")
     public ResponseEntity<?> getFollowings(@PathVariable String follower, Integer page, Integer size) {
-        ResultCount<User> followings = userService.getFollowings(follower, page, size);
+        ResultCount<UserStats> followings = userService.getFollowings(follower, page, size);
         return new ResponseEntity<>(followings, HttpStatus.OK);
     }
 
     @GetMapping("/{followed}/followers")
     public ResponseEntity<?> getFollowers(@PathVariable String followed, Integer page, Integer size) {
-        ResultCount<User> followers = userService.getFollowers(followed, page, size);
+        ResultCount<UserStats> followers = userService.getFollowers(followed, page, size);
         return new ResponseEntity<>(followers, HttpStatus.OK);
     }
 
@@ -66,4 +68,34 @@ public class UserController {
         User user = userService.update(username, newUser);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
+    @PostMapping("/changePassword")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        User success = userService.changePassword(changePasswordRequest);
+        if (success != null) {
+            return ResponseEntity.noContent().build();
+        } else {
+            throw new ApiException("Có lỗi xảy ra", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/forgetPassword")
+    public ResponseEntity<?> forgetPassword(@Valid @RequestBody UserNameRequest userNameRequest) {
+
+        Optional<User> userOptional = userService.getByUsername(userNameRequest.username);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            return new ResponseEntity<>(user.getUsername(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("User không tồn tại", HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody RequestRessetPass requestRessetPass) {
+        userService.resetPass(requestRessetPass);
+        return ResponseEntity.noContent().build();
+    }
+
 }

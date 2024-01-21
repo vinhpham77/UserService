@@ -55,7 +55,6 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration corsConfiguration = new CorsConfiguration();
                     corsConfiguration.addAllowedOrigin("http://localhost:8000");
-                    corsConfiguration.addAllowedOrigin("http://localhost:8889");
                     corsConfiguration.addAllowedMethod("*");
                     corsConfiguration.addAllowedHeader("*");
                     corsConfiguration.setAllowCredentials(true);
@@ -64,7 +63,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/signup", "/auth/signin", "/auth/refresh-token").permitAll()
                         .requestMatchers("/users/list", "/users/{username}", "/users/{follower}/followings", "/users/{followed}/followers").permitAll()
-                        .requestMatchers("/follows/is-following/", "/follows/stats/{username}").permitAll()
+                        .requestMatchers("/follows/is-following/", "/follows/stats/{username}","/follows/totalFollower/{followed}").permitAll()
                         .anyRequest().authenticated())
 
                 .authenticationProvider(authenticationProvider())

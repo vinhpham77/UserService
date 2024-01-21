@@ -15,7 +15,7 @@ import java.util.Objects;
 public class FollowId implements Serializable {
     @Serial
     private static final long serialVersionUID = 1932590682598799897L;
-    
+
     private User follower;
     private User followed;
 

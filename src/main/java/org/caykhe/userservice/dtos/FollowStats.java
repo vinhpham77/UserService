@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class BookmarkDetailRequest {
-    private Integer targetId;
-    private Boolean type;
+public class FollowStats {
+    private int followerCount;
+    private int followingCount;
 }

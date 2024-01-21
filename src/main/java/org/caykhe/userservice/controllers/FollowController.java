@@ -22,7 +22,6 @@ public class FollowController {
     public ResponseEntity<?> follow(@RequestBody String followed) {
         return new ResponseEntity<>(followService.follow(followed), HttpStatus.OK);
     }
-
     @PostMapping("/unfollow")
     public ResponseEntity<?> unfollow(@RequestBody String followed) {
         followService.unfollow(followed);
@@ -37,5 +36,10 @@ public class FollowController {
     @GetMapping("/get/followed")
     public ResponseEntity<?> getFollowed() {
         return new ResponseEntity<>(followService.getFollowed(), HttpStatus.OK);
+    }
+
+    @GetMapping("/stats/{username}")
+    public ResponseEntity<?> getStats(@PathVariable String username) {
+        return new ResponseEntity<>(followService.getStats(username), HttpStatus.OK);
     }
 }

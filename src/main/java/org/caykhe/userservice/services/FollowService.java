@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.caykhe.userservice.dtos.ApiException;
+import org.caykhe.userservice.dtos.FollowStats;
 import org.caykhe.userservice.models.Follow;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.repositories.FollowRepository;
@@ -91,5 +92,16 @@ public class FollowService {
     public List<User> getFollowed() {
         List<String> usernames = getFollowedByFollower();
         return userRepository.findAllByUsernameIn(usernames);
+    }
+
+    public FollowStats getStats(String username) {
+        User user = userService.getUserByUsername(username);
+        int follower = followRepository.countByFollowed(user);
+        int following = followRepository.countByFollower(user);
+
+        return FollowStats.builder()
+                .followerCount(follower)
+                .followingCount(following)
+                .build();
     }
 }

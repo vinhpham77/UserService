@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class JsonWebToken {
-	String token;
+    String token;
 }

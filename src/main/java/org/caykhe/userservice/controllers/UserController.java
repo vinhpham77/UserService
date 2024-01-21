@@ -1,7 +1,10 @@
 package org.caykhe.userservice.controllers;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.caykhe.userservice.dtos.ApiException;
 import org.caykhe.userservice.dtos.ResultCount;
+import org.caykhe.userservice.dtos.UserDto;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -29,7 +32,7 @@ public class UserController {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         }
     }
-    
+
     @PostMapping("/list")
     public ResponseEntity<List<User>> getUsersByIds(@RequestBody List<String> usernames) {
         List<User> users = userService.getUsersByUsernames(usernames);
@@ -41,7 +44,7 @@ public class UserController {
         User user = userService.getUserByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
-    
+
     @GetMapping("/{follower}/followings")
     public ResponseEntity<?> getFollowings(@PathVariable String follower, Integer page, Integer size) {
         ResultCount<User> followings = userService.getFollowings(follower, page, size);
@@ -52,5 +55,15 @@ public class UserController {
     public ResponseEntity<?> getFollowers(@PathVariable String followed, Integer page, Integer size) {
         ResultCount<User> followers = userService.getFollowers(followed, page, size);
         return new ResponseEntity<>(followers, HttpStatus.OK);
+    }
+
+    @PutMapping("/{username}")
+    public ResponseEntity<?> update(@PathVariable String username, @Valid @RequestBody UserDto newUser) {
+        if (newUser == null) {
+            throw new ApiException("Dữ liệu không hợp lệ", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.update(username, newUser);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

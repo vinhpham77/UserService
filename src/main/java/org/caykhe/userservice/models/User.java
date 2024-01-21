@@ -8,8 +8,8 @@ import org.caykhe.userservice.dtos.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -38,15 +38,22 @@ public class User implements UserDetails {
     @NotNull
     @Column(name = "email", unique = true, nullable = false, length = 50)
     private String email;
+
     @Column(name = "birthdate")
-    private LocalDate birthdate;
+    @Temporal(TemporalType.DATE)
+    private Date birthdate;
 
     @Size(max = 100)
     @Column(name = "display_name", length = 100)
     private String displayName;
 
     @Lob
+    @Column(name = "bio", columnDefinition = "LONGTEXT")
     private String bio;
+
+    @Size(max = 100)
+    @Column(name = "avatar_url", length = 100)
+    private String avatarUrl;
 
     @NotNull
     @Enumerated(EnumType.STRING)

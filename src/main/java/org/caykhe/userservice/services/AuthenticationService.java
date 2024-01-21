@@ -1,5 +1,7 @@
 package org.caykhe.userservice.services;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.caykhe.userservice.dtos.*;
 import org.caykhe.userservice.models.Authentication;
@@ -23,6 +25,7 @@ public class AuthenticationService {
     private final AuthenticationRepository authenticationRepository;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    final EntityManager entityManager;
 
     public boolean checkUserByEmail(String email) {
         return userRepository.findByEmail(email).isPresent();
@@ -118,9 +121,21 @@ public class AuthenticationService {
 
         return AuthUser.builder().user(user).authentication(authentication).build();
     }
-
+@Transactional
     public void logout(String refreshToken) {
-        var user = getAuthenticationAndUser(refreshToken).user();
+         var user = getAuthenticationAndUser(refreshToken).user();
         authenticationRepository.deleteByUsername(user);
+    }
+    private User getAuthenticationAndUser1(String refreshToken) {
+        String username = jwtService.extractUserName(refreshToken, true);
+        System.out.println(username);
+        var user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException("Có lỗi xảy ra. Vui lòng đăng nhập lại!", HttpStatus.NOT_ACCEPTABLE));
+        var authentication = authenticationRepository.findByUsername(user)
+                .orElseThrow(() -> new ApiException("Có lỗi xảy ra. Vui lòng đăng nhập lại!", HttpStatus.NOT_ACCEPTABLE));
+        if (!authentication.getRefreshToken().equals(refreshToken))
+            throw new ApiException("Có lỗi xảy ra. Vui lòng đăng nhập lại!", HttpStatus.NOT_ACCEPTABLE);
+
+        return user;
     }
 }

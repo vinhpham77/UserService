@@ -1,9 +1,7 @@
 package org.caykhe.userservice.services;
 
 import lombok.RequiredArgsConstructor;
-import org.caykhe.userservice.dtos.ApiException;
-import org.caykhe.userservice.dtos.ResultCount;
-import org.caykhe.userservice.dtos.UserDto;
+import org.caykhe.userservice.dtos.*;
 import org.caykhe.userservice.models.Follow;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.repositories.FollowRepository;
@@ -15,9 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 public class UserService {
     private final UserRepository userRepository;
     private final FollowRepository followRepository;
-
+    private final PasswordEncoder passwordEncoder;
     public UserDetailsService userDetailsService() {
         return username -> userRepository
                 .findByUsername(username)
@@ -114,4 +114,49 @@ public class UserService {
 
         return trimmed;
     }
+    public User changePassword(ChangePasswordRequest changePasswordRequest) {
+        String currentPassword = changePasswordRequest.getCurrentPassword();
+        String encodedPassword=passwordEncoder.encode(currentPassword);
+        String username = changePasswordRequest.getUsername();
+        String newPassword = changePasswordRequest.getNewPassword();
+        Optional<User> userOptional = userRepository.findByUsername(username);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (passwordEncoder.matches(currentPassword, user.getPassword())) {
+                String newEncodedPassword = passwordEncoder.encode(newPassword);
+                user.setPassword(newEncodedPassword);
+                return userRepository.save(user);
+            } else
+                throw new ApiException("Mật khẩu hiện tại không chính xác", HttpStatus.BAD_REQUEST);
+        }
+        throw new ApiException("User không tồn tại", HttpStatus.BAD_REQUEST);
+    }
+
+    public void resetPass(RequestRessetPass requestRessetPass) {
+        System.out.println(requestRessetPass.getOtp());
+        System.out.println(requestRessetPass.getNewPassword());
+        if (Objects.equals(requestRessetPass.getOtp(), "1234")) {
+            Optional<User> userOptional = userRepository.findByUsername(requestRessetPass.getUsername());
+            if (userOptional.isPresent()) {
+                try {
+                    User user = userOptional.get();
+                    String encodedPassword = passwordEncoder.encode(requestRessetPass.getNewPassword());
+                    user.setPassword(encodedPassword);
+                    userRepository.save(user);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+
+            } else
+                throw new ApiException("Không tồn tại user", HttpStatus.NOT_FOUND);
+        } else {
+            throw new ApiException("OTP sai", HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
+    public Optional<User> getByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
 }

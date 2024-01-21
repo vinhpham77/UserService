@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.caykhe.userservice.dtos.ApiException;
 import org.caykhe.userservice.dtos.ResultCount;
 import org.caykhe.userservice.dtos.UserDto;
+import org.caykhe.userservice.dtos.UserStats;
 import org.caykhe.userservice.models.User;
 import org.caykhe.userservice.services.UserService;
 import org.springframework.http.HttpStatus;
@@ -47,13 +48,13 @@ public class UserController {
 
     @GetMapping("/{follower}/followings")
     public ResponseEntity<?> getFollowings(@PathVariable String follower, Integer page, Integer size) {
-        ResultCount<User> followings = userService.getFollowings(follower, page, size);
+        ResultCount<UserStats> followings = userService.getFollowings(follower, page, size);
         return new ResponseEntity<>(followings, HttpStatus.OK);
     }
 
     @GetMapping("/{followed}/followers")
     public ResponseEntity<?> getFollowers(@PathVariable String followed, Integer page, Integer size) {
-        ResultCount<User> followers = userService.getFollowers(followed, page, size);
+        ResultCount<UserStats> followers = userService.getFollowers(followed, page, size);
         return new ResponseEntity<>(followers, HttpStatus.OK);
     }
 

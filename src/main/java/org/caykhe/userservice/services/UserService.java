@@ -1,6 +1,10 @@
 package org.caykhe.userservice.services;
 
 import lombok.RequiredArgsConstructor;
+import org.caykhe.userservice.dtos.ApiException;
+import org.caykhe.userservice.dtos.ResultCount;
+import org.caykhe.userservice.dtos.UserDto;
+import org.caykhe.userservice.dtos.UserStats;
 import org.caykhe.userservice.dtos.*;
 import org.caykhe.userservice.models.Follow;
 import org.caykhe.userservice.models.User;
@@ -42,7 +46,7 @@ public class UserService {
         return Optional.of(userRepository.findAll());
     }
 
-    public ResultCount<User> getFollowings(String follower, Integer page, Integer size) {
+    public ResultCount<UserStats> getFollowings(String follower, Integer page, Integer size) {
         User followerUser = getUserByUsername(follower);
         Pageable pageable = PaginationUtils.getPageable(page - 1, size, "followed");
         Page<Follow> followersPage = followRepository.findAllByFollower(followerUser, pageable);
@@ -50,7 +54,7 @@ public class UserService {
         return countAndAddStates(followersPage, true);
     }
 
-    public ResultCount<User> getFollowers(String followed, Integer page, Integer size) {
+    public ResultCount<UserStats> getFollowers(String followed, Integer page, Integer size) {
         User followedUser = getUserByUsername(followed);
         Pageable pageable = PaginationUtils.getPageable(page - 1, size, "follower");
         Page<Follow> followedsPage = followRepository.findAllByFollowed(followedUser, pageable);
@@ -58,7 +62,7 @@ public class UserService {
         return countAndAddStates(followedsPage, false);
     }
 
-    private ResultCount<User> countAndAddStates(Page<Follow> followePage, boolean isFollowing) {
+    private ResultCount<UserStats> countAndAddStates(Page<Follow> followePage, boolean isFollowing) {
         long count = followePage.getTotalElements();
         Stream<User> users;
 
@@ -68,7 +72,9 @@ public class UserService {
             users = followePage.stream().map(Follow::getFollower);
         }
 
-        return new ResultCount<>(users.toList(), count);
+        List<UserStats> userStats = users.map(this::addStats).toList();
+
+        return new ResultCount<>(userStats, count);
     }
 
     public List<User> getUsersByUsernames(List<String> usernames) {
@@ -99,6 +105,21 @@ public class UserService {
         user.setAvatarUrl(getUserProperty(userDto.getAvatarUrl()));
 
         return userRepository.save(user);
+    }
+
+    public UserStats addStats(User user) {
+        int followingCount = followRepository.countByFollower(user);
+        int followerCount = followRepository.countByFollowed(user);
+
+        return UserStats.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .displayName(user.getDisplayName())
+                .role(user.getRole())
+                .followingCount(followingCount)
+                .followerCount(followerCount)
+                .build();
     }
 
     String getUserProperty(String raw) {
